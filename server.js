@@ -22,6 +22,6 @@ db.mongoose
 
 app.use(bodyParser.json());
 
-app.use("/api", ordersRouter);
+app.use("/", ordersRouter);
 
 app.listen(port, () => console.log(`app running on http://localhost:${port}`));

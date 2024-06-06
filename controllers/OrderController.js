@@ -3,13 +3,13 @@ const router = express.Router();
 module.exports = router;
 const Order = require("../models/order");
 
-router.get("/:restaurantId/orders", async (req, res) => {
+router.get("/:restaurantId", async (req, res) => {
   try {
-    const orders = await Order.find(req.params);
+    const orders = await Order.find({ restaurant_id: req.params.restaurantId });
     if (!orders) {
       return res
         .status(404)
-        .json({ message: "Aucune commande trouvée pour ce restaurant !" });
+        .json({ message: "Order not found for this restaurant!" });
     }
     res.json(orders);
   } catch (error) {
@@ -17,14 +17,14 @@ router.get("/:restaurantId/orders", async (req, res) => {
   }
 });
 
-router.put("/:restaurantId/order/:id", async (req, res) => {
+router.put("/:orderId", async (req, res) => {
   try {
-    const order = await Order.findByIdAndUpdate(req.params.id, req.body, {
+    const order = await Order.findByIdAndUpdate(req.params.orderId, req.body, {
       new: true,
       runValidators: true,
     });
     if (!order) {
-      return res.status(404).json({ message: "Commande non trouvée !" });
+      return res.status(404).json({ message: "Order not found!" });
     }
     res.json(order);
   } catch (error) {
