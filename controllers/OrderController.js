@@ -7,9 +7,7 @@ router.get("/", async (req, res) => {
   try {
     const orders = await Order.find(req.body);
     if (!orders) {
-      return res
-        .status(404)
-        .json({ message: "Orders not found!" });
+      return res.status(404).json({ message: "Orders not found!" });
     }
     res.json(orders);
   } catch (error) {
@@ -45,7 +43,7 @@ router.get("/user/:userId", async (req, res) => {
   }
 });
 
-router.put("/:orderId", async (req, res) => {
+router.put("/status/:orderId", async (req, res) => {
   try {
     const order = await Order.findByIdAndUpdate(req.params.orderId, req.body, {
       new: true,

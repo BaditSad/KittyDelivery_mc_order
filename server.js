@@ -1,4 +1,5 @@
 const ordersRouter = require("./controllers/OrderController");
+const deliveriesRouter = require("./controllers/DeliveryController");
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -22,6 +23,7 @@ db.mongoose
 
 app.use(bodyParser.json());
 
-app.use("/", ordersRouter);
+app.use("/orders", ordersRouter);
+app.use("/deliveries", deliveriesRouter);
 
 app.listen(port, () => console.log(`app running on http://localhost:${port}`));
