@@ -1,5 +1,7 @@
 const ordersRouter = require("./controllers/OrderController");
 const deliveriesRouter = require("./controllers/DeliveryController");
+const restaurantsRouter = require("./controllers/RestaurantController");
+const usersRouter = require("./controllers/UserController");
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -25,5 +27,7 @@ app.use(bodyParser.json());
 
 app.use("/orders", ordersRouter);
 app.use("/deliveries", deliveriesRouter);
+app.use("/user", usersRouter);
+app.use("/restaurant", restaurantsRouter);
 
 app.listen(port, () => console.log(`app running on http://localhost:${port}`));
