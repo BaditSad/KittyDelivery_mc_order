@@ -5,17 +5,36 @@ const Order = require("../models/order");
 
 router.get("/tracker/:deliverId", async (req, res) => {
   try {
-    const orders = await Order.find({
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const deliveries = await Order.find({
+      order_status: { $nin: ["canceled", "over"] },
+      delivery_person_accept_id: req.params.deliverId,
+      delivery_status: { $ne: "finished" },
+    })
+      .skip(skip)
+      .limit(limit);
+
+    const totalDeliveries = await Order.countDocuments({
       order_status: { $nin: ["canceled", "over"] },
       delivery_person_accept_id: req.params.deliverId,
       delivery_status: { $ne: "finished" },
     });
-    if (!orders.length) {
-      return res
-        .status(404)
-        .json({ message: "Orders not found for this deliver!" });
+
+    if (!deliveries) {
+      return res.status(404).json({ message: "Not found" });
     }
-    res.json(orders);
+
+    if (deliveries.length === 0) {
+      return res.status(201).json({ message: "Empty" });
+    }
+
+    res.status(201).json({
+      totalPages: Math.ceil(totalDeliveries / limit),
+      deliveries: deliveries,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -23,16 +42,34 @@ router.get("/tracker/:deliverId", async (req, res) => {
 
 router.get("/finished/:deliverId", async (req, res) => {
   try {
-    const orders = await Order.find({
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const deliveries = await Order.find({
+      order_status: "over",
+      delivery_person_accept_id: req.params.deliverId,
+    })
+      .skip(skip)
+      .limit(limit);
+
+    const totalDeliveries = await Order.countDocuments({
       order_status: "over",
       delivery_person_accept_id: req.params.deliverId,
     });
-    if (!orders.length) {
-      return res
-        .status(404)
-        .json({ message: "Orders not found for this deliver!" });
+
+    if (!deliveries) {
+      return res.status(404).json({ message: "Not found" });
     }
-    res.json(orders);
+
+    if (deliveries.length === 0) {
+      return res.status(201).json({ message: "Empty" });
+    }
+
+    res.status(201).json({
+      totalPages: Math.ceil(totalDeliveries / limit),
+      deliveries: deliveries,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -40,33 +77,44 @@ router.get("/finished/:deliverId", async (req, res) => {
 
 router.get("/pending/:deliverId", async (req, res) => {
   try {
-    const deliverId = req.params.deliverId;
-    const cityName = req.query.city;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    let cityQuery = {};
 
-    let orders = await Order.find();
-
-    if (cityName) {
-      orders = orders.filter((order) => {
-        const addressParts = order.restaurant_address.split(",");
-        const restaurantCity = addressParts[addressParts.length - 1].trim();
-        return restaurantCity.toLowerCase() === cityName.toLowerCase();
-      });
+    if (req.query.city) {
+      const cityRegex = new RegExp(`,\\s*${req.query.city.trim()}$`, "i");
+      cityQuery = { restaurant_address: { $regex: cityRegex } };
     }
 
-    if (deliverId) {
-      orders = orders.filter(
-        (order) =>
-          order.order_status === "accepted" &&
-          order.delivery_person_accept_id === null &&
-          !order.delivery_person_refuse_id.includes(deliverId)
-      );
+    const deliveries = await Order.find({
+      ...cityQuery,
+      order_status: "accepted",
+      delivery_person_accept_id: null,
+      delivery_person_refuse_id: { $nin: [req.params.deliverId] },
+    })
+      .skip(skip)
+      .limit(limit);
+
+    const totalDeliveries = await Order.countDocuments({
+      ...cityQuery,
+      order_status: "accepted",
+      delivery_person_accept_id: null,
+      delivery_person_refuse_id: { $nin: [req.params.deliverId] },
+    });
+
+    if (!deliveries) {
+      return res.status(404).json({ message: "Not found" });
     }
 
-    if (!orders.length) {
-      return res.status(404).json({ message: "Orders not found!" });
+    if (deliveries.length === 0) {
+      return res.status(201).json({ message: "Empty" });
     }
 
-    res.json(orders);
+    res.status(201).json({
+      totalPages: Math.ceil(totalDeliveries / limit),
+      deliveries: deliveries,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -74,19 +122,20 @@ router.get("/pending/:deliverId", async (req, res) => {
 
 router.put("/status/:orderId", async (req, res) => {
   try {
-    const updates = {
-      ...req.body,
-      order_status: "over",
-      delivery_date: new Date(),
-    };
-    const order = await Order.findByIdAndUpdate(req.params.orderId, updates, {
-      new: true,
-      runValidators: true,
-    });
-    if (!order) {
-      return res.status(404).json({ message: "Order not found!" });
+    const delivery = await Order.findByIdAndUpdate(
+      req.params.orderId,
+      { ...req.body, order_status: "over", delivery_date: new Date() },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!delivery) {
+      return res.status(404).json({ message: "Not found" });
     }
-    res.json(order);
+
+    res.status(201).json({ message: "item updated" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -94,12 +143,17 @@ router.put("/status/:orderId", async (req, res) => {
 
 router.put("/accept/:orderId", async (req, res) => {
   try {
-    const updatedOrder = await Order.findByIdAndUpdate(
+    const delivery = await Order.findByIdAndUpdate(
       req.params.orderId,
       req.body,
       { new: true, runValidators: true }
     );
-    res.json(updatedOrder);
+
+    if (!delivery) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    res.status(201).json({ message: "item updated" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -107,13 +161,17 @@ router.put("/accept/:orderId", async (req, res) => {
 
 router.put("/refuse/:orderId", async (req, res) => {
   try {
-    const updatedOrder = await Order.findByIdAndUpdate(
+    const delivery = await Order.findByIdAndUpdate(
       req.params.orderId,
       { $push: req.body },
       { new: true }
     );
 
-    res.json(updatedOrder);
+    if (!delivery) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    res.status(201).json({ message: "item updated" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

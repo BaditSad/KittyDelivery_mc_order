@@ -5,11 +5,26 @@ const Order = require("../models/order");
 
 router.get("/", async (req, res) => {
   try {
-    const orders = await Order.find(req.body);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const orders = await Order.find().skip(skip).limit(limit);
+
+    const totalOrders = await Order.countDocuments();
+
     if (!orders) {
-      return res.status(404).json({ message: "Orders not found!" });
+      return res.status(404).json({ message: "Not found" });
     }
-    res.json(orders);
+
+    if (orders.length === 0) {
+      return res.status(201).json({ message: "Empty" });
+    }
+
+    res.status(201).json({
+      totalPages: Math.ceil(totalOrders / limit),
+      orders: orders,
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -21,10 +36,12 @@ router.put("/status/:orderId", async (req, res) => {
       new: true,
       runValidators: true,
     });
+
     if (!order) {
-      return res.status(404).json({ message: "Order not found!" });
+      return res.status(404).json({ message: "Not found" });
     }
-    res.json(order);
+
+    res.status(201).json({ message: "Item updated" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -66,7 +83,8 @@ router.post("/", async (req, res) => {
     });
 
     await order.save();
-    res.status(201).json(order);
+
+    res.status(201).json({ message: "Item posted" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
