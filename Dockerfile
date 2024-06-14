@@ -1,20 +1,20 @@
-# Utiliser une image Node officielle comme image de base
+# Use an official Node.js runtime as a parent image
 FROM node:latest
 
-# Définir le répertoire de travail dans le conteneur
+# Set the working directory
 WORKDIR /app
 
-# Copier les fichiers package.json et package-lock.json dans le conteneur
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Installer les dépendances du projet
+# Install dependencies
 RUN npm install
 
-# Copier tous les fichiers du projet dans le conteneur
+# Copy the rest of the application
 COPY . .
 
-# Exposer le port que l'application va utiliser
+# Expose the port
 EXPOSE 3004
 
-# Démarrer l'application avec nodemon
+# Command to run the application
 CMD ["npm", "start"]

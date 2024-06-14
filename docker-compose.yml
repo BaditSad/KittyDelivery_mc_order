@@ -6,6 +6,20 @@ services:
     ports:
       - "3004:3004"
     volumes:
-      - .:/app
-      - /app/node_modules
-    command: npm start
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - PORT=3004
+      - MONGO_URI=mongodb://mongo:27017/kittydelivery
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
