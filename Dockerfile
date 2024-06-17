@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm Install
 
 # Copy the rest of the application
 COPY . .
@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3004
 
 # Command to run the application
-CMD ["npm", "start"]
+CMD ["sh", "-c", "node migration.js && npm start"]
