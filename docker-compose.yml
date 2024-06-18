@@ -1,10 +1,24 @@
 version: '3.8'
 
 services:
-  mc_order:
+  mc_order_0:
+    container_name: mc_order_0
     build: .
     ports:
-      - "3004:3004"
+      - "3040:3004"
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - PORT=3004
+      - MONGO_URI=mongodb://mongo:27017/kittydelivery
+    networks:
+      - shared-net
+  mc_order_1:
+    container_name: mc_order_1
+    build: .
+    ports:
+      - "3041:3004"
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
