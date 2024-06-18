@@ -107,3 +107,36 @@ router.get("/accepted/:restaurantId", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+router.get("/:restaurantId", async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const restaurantStat = await Order.find({
+      restaurant_id: req.params.restaurantId,
+    })
+      .skip(skip)
+      .limit(limit);
+
+    const totalRestaurantStat = await Order.countDocuments({
+      restaurant_id: req.params.restaurantId,
+    });
+
+    if (!restaurantStat) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    if (restaurantStat.length === 0) {
+      return res.status(201).json({ message: "Empty" });
+    }
+
+    res.status(201).json({
+      totalPages: Math.ceil(totalRestaurantStat / limit),
+      restaurants: restaurantStat,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
