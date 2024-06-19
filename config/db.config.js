@@ -1,3 +1,1 @@
-module.exports = {
-  url: "mongodb://localhost:27017/kittydelivery",
-};
+module.exports = { url: process.env.MONGO_URI };
