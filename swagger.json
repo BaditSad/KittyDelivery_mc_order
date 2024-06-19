@@ -1,0 +1,1041 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Order Management API",
+        "version": "1.0.0",
+        "description": "API for managing orders and deliveries"
+    },
+    "paths": {
+        "/api/mc_order/orders": {
+            "post": {
+                "summary": "Create a new order",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "user_id": {
+                                        "type": "number",
+                                        "example": 12345
+                                    },
+                                    "user_name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "restaurant_id": {
+                                        "type": "number",
+                                        "example": 54321
+                                    },
+                                    "restaurant_name": {
+                                        "type": "string",
+                                        "example": "Example Restaurant"
+                                    },
+                                    "restaurant_address": {
+                                        "type": "string",
+                                        "example": "123 Example St, Example City"
+                                    },
+                                    "order_total_amount": {
+                                        "type": "number",
+                                        "example": 50.25
+                                    },
+                                    "order_items": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "example": "Burger"
+                                        }
+                                    },
+                                    "delivery_address": {
+                                        "type": "string",
+                                        "example": "456 Delivery St, Delivery City"
+                                    }
+                                },
+                                "required": [
+                                    "user_id",
+                                    "user_name",
+                                    "restaurant_id",
+                                    "restaurant_name",
+                                    "restaurant_address",
+                                    "order_total_amount",
+                                    "order_items",
+                                    "delivery_address"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful creation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Item posted"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            },
+            "get": {
+                "summary": "Get all orders",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "description": "Page number for pagination"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "description": "Number of items per page"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "totalPages": {
+                                            "type": "integer",
+                                            "example": 2
+                                        },
+                                        "orders": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Orders not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/mc_order/deliveries/{deliverId}": {
+            "get": {
+                "summary": "Get deliveries tracked by delivery person ID",
+                "parameters": [
+                    {
+                        "name": "deliverId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "12345"
+                        },
+                        "description": "ID of the delivery person"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "description": "Page number for pagination"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "description": "Number of items per page"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "totalPages": {
+                                            "type": "integer",
+                                            "example": 2
+                                        },
+                                        "deliveries": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Deliveries not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/mc_order/deliveries/finished/{deliverId}": {
+            "get": {
+                "summary": "Get finished deliveries by delivery person ID",
+                "parameters": [
+                    {
+                        "name": "deliverId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "12345"
+                        },
+                        "description": "ID of the delivery person"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "description": "Page number for pagination"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "description": "Number of items per page"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "totalPages": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "deliveries": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Deliveries not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/mc_order/deliveries/pending/{deliverId}": {
+            "get": {
+                "summary": "Get pending deliveries for delivery person ID",
+                "parameters": [
+                    {
+                        "name": "deliverId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "12345"
+                        },
+                        "description": "ID of the delivery person"
+                    },
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "New York"
+                        },
+                        "description": "Filter deliveries by city"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "description": "Page number for pagination"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "description": "Number of items per page"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "totalPages": {
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "deliveries": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Deliveries not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/mc_order/restaurant/pending/{restaurantId}": {
+            "get": {
+                "summary": "Get pending orders for restaurant by restaurant ID",
+                "parameters": [
+                    {
+                        "name": "restaurantId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "example": 54321
+                        },
+                        "description": "ID of the restaurant"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "description": "Page number for pagination"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "description": "Number of items per page"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "totalPages": {
+                                            "type": "integer",
+                                            "example": 2
+                                        },
+                                        "restaurants": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Orders not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/mc_order/restaurant/refused/{restaurantId}": {
+            "get": {
+                "summary": "Get refused orders for restaurant by restaurant ID",
+                "parameters": [
+                    {
+                        "name": "restaurantId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "example": 54321
+                        },
+                        "description": "ID of the restaurant"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "description": "Page number for pagination"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "description": "Number of items per page"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "totalPages": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "restaurants": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Orders not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/mc_order/restaurant/accepted/{restaurantId}": {
+            "get": {
+                "summary": "Get accepted orders for restaurant by restaurant ID",
+                "parameters": [
+                    {
+                        "name": "restaurantId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "example": 54321
+                        },
+                        "description": "ID of the restaurant"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "description": "Page number for pagination"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "description": "Number of items per page"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "totalPages": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "restaurants": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Orders not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/mc_order/restaurant/{restaurantId}": {
+            "get": {
+                "summary": "Get all orders for restaurant by restaurant ID",
+                "parameters": [
+                    {
+                        "name": "restaurantId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "example": 54321
+                        },
+                        "description": "ID of the restaurant"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "description": "Page number for pagination"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "description": "Number of items per page"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "totalPages": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "restaurants": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Orders not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/mc_order/user/{userId}": {
+            "get": {
+                "summary": "Get all orders for user by user ID",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "example": 12345
+                        },
+                        "description": "ID of the user"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "description": "Page number for pagination"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "description": "Number of items per page"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "totalPages": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "users": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Orders not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/mc_order/user/pending/{userId}": {
+            "get": {
+                "summary": "Get pending orders for user by user ID",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "number",
+                            "example": 12345
+                        },
+                        "description": "ID of the user"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        },
+                        "description": "Page number for pagination"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        },
+                        "description": "Number of items per page"
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "totalPages": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "users": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Order"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Orders not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/mc_order/orders/status/{orderId}": {
+            "put": {
+                "summary": "Update order status by order ID",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "61433a37f895cfd1e8fe8932"
+                        },
+                        "description": "ID of the order"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "order_status": {
+                                        "type": "string",
+                                        "example": "over"
+                                    },
+                                    "delivery_date": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2023-06-30T12:45:00Z"
+                                    }
+                                },
+                                "required": [
+                                    "order_status"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful update",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Item updated"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Order not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/mc_order/deliveries/accept/{orderId}": {
+            "put": {
+                "summary": "Accept order by order ID",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "61433a37f895cfd1e8fe8932"
+                        },
+                        "description": "ID of the order"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "delivery_person_accept_id": {
+                                        "type": "number",
+                                        "example": 12345
+                                    }
+                                },
+                                "required": [
+                                    "delivery_person_accept_id"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful update",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Item updated"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Order not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        },
+        "/api/mc_order/deliveries/refuse/{orderId}": {
+            "put": {
+                "summary": "Refuse order by order ID",
+                "parameters": [
+                    {
+                        "name": "orderId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "61433a37f895cfd1e8fe8932"
+                        },
+                        "description": "ID of the order"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "delivery_person_refuse_id": {
+                                        "type": "number",
+                                        "example": 12345
+                                    }
+                                },
+                                "required": [
+                                    "delivery_person_refuse_id"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Successful update",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Item updated"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Order not found"
+                    },
+                    "500": {
+                        "description": "Internal server error"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Order": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "number",
+                        "example": 12345
+                    },
+                    "user_name": {
+                        "type": "string",
+                        "example": "John Doe"
+                    },
+                    "restaurant_id": {
+                        "type": "number",
+                        "example": 54321
+                    },
+                    "restaurant_name": {
+                        "type": "string",
+                        "example": "Example Restaurant"
+                    },
+                    "restaurant_address": {
+                        "type": "string",
+                        "example": "123 Example St, Example City"
+                    },
+                    "order_date": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-06-19T12:00:00Z"
+                    },
+                    "order_status": {
+                        "type": "string",
+                        "example": "pending"
+                    },
+                    "order_total_amount": {
+                        "type": "number",
+                        "example": 50.25
+                    },
+                    "order_items": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "example": "Burger"
+                        }
+                    },
+                    "delivery_address": {
+                        "type": "string",
+                        "example": "456 Delivery St, Delivery City"
+                    },
+                    "delivery_status": {
+                        "type": "string",
+                        "example": "pending"
+                    },
+                    "delivery_person_accept_id": {
+                        "type": "number",
+                        "example": null
+                    },
+                    "delivery_person_refuse_id": {
+                        "type": "array",
+                        "items": {
+                            "type": "number",
+                            "example": [
+                                1,
+                                2,
+                                3
+                            ]
+                        }
+                    },
+                    "delivery_date": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2024-06-20T12:00:00Z"
+                    },
+                    "qr_code": {
+                        "type": "string",
+                        "example": "J5M2A"
+                    }
+                },
+                "required": [
+                    "user_id",
+                    "user_name",
+                    "restaurant_id",
+                    "restaurant_name",
+                    "restaurant_address",
+                    "order_date",
+                    "order_status",
+                    "order_total_amount",
+                    "order_items",
+                    "delivery_address",
+                    "delivery_status",
+                    "qr_code"
+                ]
+            }
+        }
+    }
+}
