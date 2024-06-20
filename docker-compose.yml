@@ -12,6 +12,8 @@ services:
     environment:
       - PORT=3004
       - MONGO_URI=mongodb://mongo:27017/kittydelivery
+      - ALLOWED_ORIGIN=https://localhost:8080
+      - ALLOWED_REFERER=https://localhost:3000/api
     networks:
       - shared-net
   mc_order_1:
@@ -25,6 +27,8 @@ services:
     environment:
       - PORT=3004
       - MONGO_URI=mongodb://mongo:27017/kittydelivery
+      - ALLOWED_ORIGIN=https://localhost:8080
+      - ALLOWED_REFERER=https://localhost:3000/api
     networks:
       - shared-net
 

@@ -23,7 +23,7 @@ function generateOrderDates() {
 }
 
 db.once("open", async function () {
-  console.log("Connected to MongoDB");
+  console.log(`🛠️Connection to MongoDB...`);
 
   try {
     await Order.deleteMany({});

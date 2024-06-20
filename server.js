@@ -10,6 +10,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const fs = require("fs");
 const path = require("path");
+const allowRequest = require("./middlewares/allowRequest");
 
 const app = express();
 const port = process.env.PORT;
@@ -21,6 +22,7 @@ const swaggerDocumentd = JSON.parse(
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use(allowRequest);
 
 app.use("/swagger.json", (req, res) => {
   res.setHeader("Content-Type", "application/json");
@@ -28,12 +30,9 @@ app.use("/swagger.json", (req, res) => {
 });
 
 mongoose
-  .connect(mongoURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(mongoURI)
   .then(() => {
-    console.log("Connected to MongoDB!");
+    console.log(`💡 Connected to MongoDB!`);
   })
   .catch((err) => {
     console.error("Error connecting to MongoDB:", err);
@@ -47,5 +46,5 @@ app.use("/user", usersRouter);
 app.use("/restaurant", restaurantsRouter);
 
 app.listen(port, () => {
-  console.log(`App running on http://localhost:${port}`);
+  console.log(`🚀 App running on http://localhost:${port}`);
 });
